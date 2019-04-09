@@ -692,3 +692,4 @@ make
 # changed line 3 of /projects/b1011/blast-tng/TOAST_5/TOAST/experiments/blast/IO/toast_blast.hpp to:
 #include <getdata/dirfile.h>
 
+# next we need our own anaconda installation of python to avoid conflicts with libraries, like libbz2
