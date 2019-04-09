@@ -237,7 +237,7 @@ make install
 
 # 2/28/19
 
-building getdata 0.9.3 (latest is 0.10.0, maybe want to upgrade later?)
+# building getdata 0.9.3 (latest is 0.10.0, maybe want to upgrade later?)
 
 module load gcc/4.6.3
 #previous configure for getdata in /home/paw663/fissel/getdata-0.9.3
@@ -631,3 +631,64 @@ ln -s /projects/b1011/blast-tng/software/getdata/0.9.3/include/getdata /projects
 #    getdata header files, probably need to hack them so they look in the right place
 #    are things being cached? configure output says they are, but I don't see a config.cache
 #    saved most recent configure output in config.output so I can look later
+
+# 4/9/2019
+
+# rebuilding MOAT using make clean
+
+cd /projects/b1011/blast-tng/MOAT_3/MOAT
+module purge
+module load python
+module load gcc/4.6.3
+module load mpi/openmpi-1.6.3-gcc-4.6.3
+module use /projects/b1011/blast-tng/modules
+module load fftw
+module load lapack
+module load boost
+./configure --prefix=/projects/b1011/blast-tng/software/moat --with-boost=/projects/b1011/blast-tng/software/boost/1.61.0 BOOST_ROOT=/projects/b1011/blast-tng/software/boost/1.61.0 MPICXX=mpic++ CC=gcc CXX=g++ F77=gfortran LIBS=-lgomp LIBS=-lfftw3 --with-fftw-libs=-L/projects/b1011/blast-tng/software/fftw/3.3.8/lib64 CFLAGS=-I/projects/b1011/blast-tng/software/fftw/3.3.8/include CXXFLAGS=-I/projects/b1011/blast-tng/software/fftw/3.3.8/include --with-fftw-cpp=-I/projects/b1011/blast-tng/software/fftw/3.3.8/include
+
+make clean
+make
+make check
+# fails same "testing dense matrix ops" test
+make install
+
+# TOAST again
+cd /projects/b1011/blast-tng/TOAST_5/TOAST
+
+module purge
+module load python
+module load gcc/4.6.3
+module load mpi/openmpi-1.6.3-gcc-4.6.3
+module use /projects/b1011/blast-tng/modules
+module load fftw
+module load lapack
+module load boost
+module load moat
+module load cfitsio
+module load wcslib
+module load getdata
+
+./configure --prefix=/projects/b1011/blast-tng/software/toast --with-lapack=/projects/b1011/blast-tng/software/lapack/3.6.0/lib64/liblapack.so --with-blas=/projects/b1011/blast-tng/software/lapack/3.6.0/lib64/libblas.so --with-cfitsio=/projects/b1011/blast-tng/software/cfitsio/3.45 --with-hdf5=no MPICC=mpicc MPICXX=mpic++ MPIFC=mpif90 CC=gcc CXX=g++ FC=gfortran --with-moatconfig=/projects/b1011/blast-tng/software/moat/bin/moatconfig --with-wcslib=/projects/b1011/blast-tng/software/wcslib/5.15 --enable-exp-blast --with-getdata=/projects/b1011/blast-tng/software/getdata/0.9.3 CFLAGS="-I/projects/b1011/blast-tng/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1011/blast-tng/software/getdata/0.9.3/include/getdata -I/projects/b1011/blast-tng/software/boost/1.61.0/include -I/projects/b1011/blast-tng/software/boost/1.61.0/include/boost" CXXFLAGS="-I/projects/b1011/blast-tng/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1011/blast-tng/software/getdata/0.9.3/include/getdata -I/projects/b1011/blast-tng/software/boost/1.61.0/include -I/projects/b1011/blast-tng/software/boost/1.61.0/include/boost" CPPFLAGS="-I/projects/b1011/blast-tng/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1011/blast-tng/software/getdata/0.9.3/include/getdata -I/projects/b1011/blast-tng/software/boost/1.61.0/include -I/projects/b1011/blast-tng/software/boost/1.61.0/include/boost" LDFLAGS="-L/software/anaconda2/lib -L/projects/b1011/fissel/pascal/Experimental/python/lib" BOOST_ROOT=/projects/b1011/blast-tng/software/boost/1.61.0/
+
+make clean
+./configure --prefix=/projects/b1011/blast-tng/software/toast --with-lapack=/projects/b1011/blast-tng/software/lapack/3.6.0/lib64/liblapack.so --with-blas=/projects/b1011/blast-tng/software/lapack/3.6.0/lib64/libblas.so --with-cfitsio=/projects/b1011/blast-tng/software/cfitsio/3.45 --with-hdf5=no MPICC=mpicc MPICXX=mpic++ MPIFC=mpif90 CC=gcc CXX=g++ FC=gfortran --with-moatconfig=/projects/b1011/blast-tng/software/moat/bin/moatconfig --with-wcslib=/projects/b1011/blast-tng/software/wcslib/5.15 --enable-exp-blast --with-getdata=/projects/b1011/blast-tng/software/getdata/0.9.3 CFLAGS="-I/projects/b1011/blast-tng/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1011/blast-tng/software/getdata/0.9.3/include/getdata -I/projects/b1011/blast-tng/software/boost/1.61.0/include -I/projects/b1011/blast-tng/software/boost/1.61.0/include/boost" CXXFLAGS="-I/projects/b1011/blast-tng/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1011/blast-tng/software/getdata/0.9.3/include/getdata -I/projects/b1011/blast-tng/software/boost/1.61.0/include -I/projects/b1011/blast-tng/software/boost/1.61.0/include/boost" CPPFLAGS="-I/projects/b1011/blast-tng/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1011/blast-tng/software/getdata/0.9.3/include/getdata -I/projects/b1011/blast-tng/software/boost/1.61.0/include -I/projects/b1011/blast-tng/software/boost/1.61.0/include/boost" LDFLAGS="-L/software/anaconda2/lib -L/projects/b1011/fissel/pascal/Experimental/python/lib" BOOST_ROOT=/projects/b1011/blast-tng/software/boost/1.61.0/
+
+make
+
+# failed because of getdata header files in the wrong place, changing getdata path (in CFLAGS, CPPFLAGS, CXXFLAGS) 
+# and deleting the link at /projects/b1011/blast-tng/software/getdata/0.9.3/include/getdata/getdata
+make clean
+
+./configure --prefix=/projects/b1011/blast-tng/software/toast --with-lapack=/projects/b1011/blast-tng/software/lapack/3.6.0/lib64/liblapack.so --with-blas=/projects/b1011/blast-tng/software/lapack/3.6.0/lib64/libblas.so --with-cfitsio=/projects/b1011/blast-tng/software/cfitsio/3.45 --with-hdf5=no MPICC=mpicc MPICXX=mpic++ MPIFC=mpif90 CC=gcc CXX=g++ FC=gfortran --with-moatconfig=/projects/b1011/blast-tng/software/moat/bin/moatconfig --with-wcslib=/projects/b1011/blast-tng/software/wcslib/5.15 --enable-exp-blast --with-getdata=/projects/b1011/blast-tng/software/getdata/0.9.3 CFLAGS="-I/projects/b1011/blast-tng/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1011/blast-tng/software/getdata/0.9.3/include -I/projects/b1011/blast-tng/software/boost/1.61.0/include -I/projects/b1011/blast-tng/software/boost/1.61.0/include/boost" CXXFLAGS="-I/projects/b1011/blast-tng/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1011/blast-tng/software/getdata/0.9.3/include -I/projects/b1011/blast-tng/software/boost/1.61.0/include -I/projects/b1011/blast-tng/software/boost/1.61.0/include/boost" CPPFLAGS="-I/projects/b1011/blast-tng/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1011/blast-tng/software/getdata/0.9.3/include -I/projects/b1011/blast-tng/software/boost/1.61.0/include -I/projects/b1011/blast-tng/software/boost/1.61.0/include/boost" LDFLAGS="-L/software/anaconda2/lib -L/projects/b1011/fissel/pascal/Experimental/python/lib" BOOST_ROOT=/projects/b1011/blast-tng/software/boost/1.61.0
+
+make
+#error:
+##In file included from ./experiments_IO.hpp:4:0,
+##                 from ./toast_io_internal.hpp:16,
+##                from toast_fits.cpp:3:
+##./../../../experiments/blast/IO/toast_blast.hpp:3:21: fatal error: dirfile.h: No such file or directory
+
+# changed line 3 of /projects/b1011/blast-tng/TOAST_5/TOAST/experiments/blast/IO/toast_blast.hpp to:
+#include <getdata/dirfile.h>
+
