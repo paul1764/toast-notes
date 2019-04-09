@@ -1,5 +1,5 @@
 # toast-notes
-Notes from TOAST installation on QUEST
+Notes from [TOAST](https://github.com/hpc4cmb/toast) installation on QUEST
 
 2016 notes recreated from old notebooks and emails in January 2019
 
