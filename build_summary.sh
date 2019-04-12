@@ -1,3 +1,16 @@
+# command to get BLASTPol 2012 data from hen:
+# also can see record in /projects/b1092/minimal_blast_2012/data_copy_record
+# don't really use paulwilliams@hen, use IP address
+cd /projects/b1092
+rsync -rLptEv paulwilliams@hen:/data3/minimal_blast_2012 ./minimal_blast_2012
+
+# Anaconda python
+cd /projects/b1092/
+bash ./Anaconda2-2019.03-Linux-x86_64.sh -p /projects/b1092/software/anaconda
+# the last thing the installer asks is "do you want to run conda init?"
+# say no, we will load this python using a module instead
+# made a module, now we need to always load this python by issuing "module use ..." before "module load python"
+
 # Lapack
 module purge
 module load gcc/4.6.3
