@@ -290,7 +290,7 @@ make check
 make install
 #made a module
 
-MOAT
+#MOAT
 
 #again, from /projects/b1011/blast-tng/MOAT_3/MOAT/config/log:
 # ./configure --prefix=/projects/b1011/fissel/pascal/Experimental/moat_new --with-boost=/projects/b1011/fissel/pascal/Experimental/boost BOOST_ROOT=/projects/b1011/fissel/pascal/Experimental/boost MPICXX=mpic++ CC=gcc CXX=g++ F77=gfortran LIBS=-lgomp --with-fftw-libs=-L/software/FFTW/3.3.3/lib -lfftw3 CFLAGS=-I/software/FFTW/3.3.3/include CXXFLAGS=-I/software/FFTW/3.3.3/include -with-fftw-cpp=-I/software/FFTW/3.3.3/include
