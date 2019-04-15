@@ -693,3 +693,44 @@ make
 #include <getdata/dirfile.h>
 
 # next we need our own anaconda installation of python to avoid conflicts with libraries, like libbz2
+
+
+# Starting over on slurm cluster, going to make our own python:
+
+# Anaconda python
+cd /projects/b1092/
+bash ./Anaconda2-2019.03-Linux-x86_64.sh -p /projects/b1092/software/anaconda
+# the last thing the installer asks is "do you want to run conda init?"
+# say no, we will load this python using a module instead
+# made a module, now we need to always load this python by issuing "module use ..." before "module load python"
+
+
+# Lapack
+module purge
+cd /projects/b1092/lapack-3.6.0
+rm -rf build
+rm -rf build-2
+mkdir build
+cd /projects/b1092/lapack-3.6.0
+module use /projects/b1092/modules
+module load python
+module load gcc/4.6.3
+module load cmake/3.1.0
+
+cmake .. -DCMAKE_C_COMPILER=gcc -DCMAKE_INSTALL_PREFIX=/projects/b1092/software/lapack/3.6.0 -DCMAKE_Fortran_COMPILER=gfortran
+ccmake ..
+# turn BUILD_SHARED_LIBS ON
+make
+make install
+# no static libraries this time, even though it is turned ON in ccmake
+# only difference in Makefiles from this time and last time is paths for build directory
+
+
+# Getdata
+module purge
+module load python
+module load gcc/4.6.3
+module load automake/1.15
+cd /projects/b1092/getdata-0.9.3
+./configure --disable-idl --disable-matlab --disable-perl --disable-php --disable-zzslim --prefix=/projects/b1092/software/getdata/0.9.3
+make clean

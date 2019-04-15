@@ -19,7 +19,7 @@ mkdir /projects/b1011/blast-tng/lapack-3.6.0/build-2
 cd /projects/b1011/blast-tng/lapack-3.6.0/build-2
 cmake .. -DCMAKE_C_COMPILER=gcc -DCMAKE_INSTALL_PREFIX=/projects/b1011/blast-tng/software/lapack/3.6.0 -DCMAKE_Fortran_COMPILER=gfortran
 #to check other options run ccmake
-ccmake
+ccmake ..
 make
 make install
 
@@ -84,7 +84,7 @@ make install
 #  long double serial and openmp
 
 
-#Getdata
+# Getdata
 module purge
 module load python
 module load gcc/4.6.3
