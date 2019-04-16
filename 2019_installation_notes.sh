@@ -119,7 +119,7 @@ make install
 
 # 2/21/2019
 
-# boost
+# Boost
 
 module purge
 module load gcc/4.6.3
@@ -362,7 +362,9 @@ make check
 #same exact error as when I ran yesterday in my new moat build directory
 #maybe this is okay?
 
+# Boost
 # trying boost again, load python module first this time
+# putting it in software/boost2
 
 cd /projects/b1011/blast-tng/boost_1_61_0
 module load python
@@ -425,7 +427,7 @@ make
 make check
 #same error while testing dense matrix ops
 
-# boost again!
+# Boost again!
 
 cd /projects/b1011/blast-tng/boost_1_61_0
 vim ./tools/build/example/user-config.jam
@@ -695,10 +697,16 @@ make
 # next we need our own anaconda installation of python to avoid conflicts with libraries, like libbz2
 
 
+#################################################################################
 # Starting over on slurm cluster, going to make our own python:
+# Also starting in the new project space, /projects/b1092
+# 
+#################################################################################
 
 # Anaconda python
 cd /projects/b1092/
+
+# Anaconda install script downloaded from anaconda's website
 bash ./Anaconda2-2019.03-Linux-x86_64.sh -p /projects/b1092/software/anaconda
 # the last thing the installer asks is "do you want to run conda init?"
 # say no, we will load this python using a module instead
@@ -725,12 +733,40 @@ make install
 # no static libraries this time, even though it is turned ON in ccmake
 # only difference in Makefiles from this time and last time is paths for build directory
 
+ccmake ..
+# turn BUILD_SHARED_LIBS OFF
+make
+make install
+# now we have both shared and static. Not sure if we need them all, but they are there
+
 
 # Getdata
 module purge
+module use /projects/b1092/modules
 module load python
 module load gcc/4.6.3
 module load automake/1.15
 cd /projects/b1092/getdata-0.9.3
 ./configure --disable-idl --disable-matlab --disable-perl --disable-php --disable-zzslim --prefix=/projects/b1092/software/getdata/0.9.3
 make clean
+./configure --disable-idl --disable-matlab --disable-perl --disable-php --disable-zzslim --prefix=/projects/b1092/software/getdata/0.9.3
+make
+make check
+# all checks that ran, passed (only 17 did not run)
+make install
+# made a module at /projects/b1092/modules/getdata/0.9.3
+
+
+# Boost
+module purge
+module use /projects/b1092/modules
+module load python
+module load gcc/4.6.3
+module load mpi/openmpi-1.6.3-gcc-4.6.3
+cd /projects/b1011/blast-tng/boost_1_61_0
+./b2 clean
+# not sure how much this helped, it says it performed configuration checks and built Boost C++ libraries
+./bootstrap.sh --with-libraries=all --prefix=/projects/b1092/software/boost/1.61.0
+echo "using mpi ;" >> project-config.jam
+./b2
+./b2 install

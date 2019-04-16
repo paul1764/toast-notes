@@ -1,3 +1,13 @@
+#################################################################################
+# This file contains a summary of the commands I used to build the final versions
+# of all the libraries in /projects/b1011/blast-tng/software, with the exception
+# of TOAST, which we never got to work there.
+#
+# Most recent builds take place in theb1092 project space
+#################################################################################
+
+
+
 # command to get BLASTPol 2012 data from hen:
 # also can see record in /projects/b1092/minimal_blast_2012/data_copy_record
 # don't really use paulwilliams@hen, use IP address
@@ -20,9 +30,10 @@ cd /projects/b1011/blast-tng/lapack-3.6.0/build-2
 cmake .. -DCMAKE_C_COMPILER=gcc -DCMAKE_INSTALL_PREFIX=/projects/b1011/blast-tng/software/lapack/3.6.0 -DCMAKE_Fortran_COMPILER=gfortran
 #to check other options run ccmake
 ccmake ..
+# turn BUILD_SHARED_LIBS ON
 make
 make install
-
+# if you want static libs too, need to re-run ccmake, turn off shared libs, and re-run make, make install
 
 # CFITSIO
 module purge
@@ -96,7 +107,7 @@ make check
 make install
 
 
-#Boost
+# Boost
 module purge
 module load python
 module load gcc/4.6.3
