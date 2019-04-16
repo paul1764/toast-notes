@@ -61,7 +61,7 @@ gmake check
 gmake install
 
 
-#FFTW
+# FFTW
 module purge
 module load gcc/4.6.3
 module load mpi/openmpi-1.6.3-gcc-4.6.3
