@@ -25,6 +25,7 @@ bash ./Anaconda2-2019.03-Linux-x86_64.sh -p /projects/b1092/software/anaconda
 module purge
 module load gcc/4.6.3
 module load cmake/3.1.0
+rm -rf /projects/b1011/blast-tng/lapack-3.6.0/build-2
 mkdir /projects/b1011/blast-tng/lapack-3.6.0/build-2
 cd /projects/b1011/blast-tng/lapack-3.6.0/build-2
 cmake .. -DCMAKE_C_COMPILER=gcc -DCMAKE_INSTALL_PREFIX=/projects/b1011/blast-tng/software/lapack/3.6.0 -DCMAKE_Fortran_COMPILER=gfortran
@@ -39,6 +40,7 @@ make install
 module purge
 module load gcc/4.6.3
 module load cmake/3.1.0
+rm -rf /projects/b1011/blast-tng/cfitsio/build
 mkdir /projects/b1011/blast-tng/cfitsio/build
 cd /projects/b1011/blast-tng/cfitsio/build
 #TODO Erin: other options passed to cmake the first time?
@@ -66,7 +68,8 @@ module purge
 module load gcc/4.6.3
 module load mpi/openmpi-1.6.3-gcc-4.6.3
 module load cmake/3.1.0
-#make a directory for building with cmake
+#make a directory for building with cmake (if it exists, rm it first so we start fresh)
+rm -rf /projects/b1011/blast-tng/fftw-3.3.8/build
 mkdir /projects/b1011/blast-tng/fftw-3.3.8/build
 cd /projects/b1011/blast-tng/fftw-3.3.8/build
 
