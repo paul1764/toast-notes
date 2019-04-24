@@ -770,3 +770,14 @@ cd /projects/b1011/blast-tng/boost_1_61_0
 echo "using mpi ;" >> project-config.jam
 ./b2
 ./b2 install
+
+#cfitsio
+cd /projects/b1092/cfitsio/build/
+module purge
+module use /projects/b1092/modules
+cmake .. -DCMAKE_C_COMPILER=/hpc/software/gcc/4.6.3-rhel7/bin/gcc -DCMAKE_INSTALL_PREFIX=/projects/b1092/software/cfitsio/3.45 -DCMAKE_Fortran_COMPLIER=gfortran
+#here I got an error about a path in CMakeCache.txt, so I edited the path names in that file and re-ran above command (seemed to work...)
+make
+make install 
+#things seemed to work without error, there is now cfitsio listed in the software directory
+
