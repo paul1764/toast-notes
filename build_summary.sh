@@ -3,9 +3,8 @@
 # of all the libraries in /projects/b1011/blast-tng/software, with the exception
 # of TOAST, which we never got to work there.
 #
-# Most recent builds take place in theb1092 project space
+# Most recent builds take place in the b1092 project space
 #################################################################################
-
 
 
 # command to get BLASTPol 2012 data from hen:
