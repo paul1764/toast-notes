@@ -783,3 +783,14 @@ make
 make install 
 #things seemed to work without error, there is now cfitsio listed in the software directory
 
+#fftw
+cd /projects/b1092/fftw-3.3.8/
+module load mpi
+./configure --prefix=/projects/b1092/sofware/fftw/3.3.8 CC=gcc MPICC=mpicc --enable-mpi --enable-openmp --enable-shared
+module load cmake/3.1.0
+cd build/
+cmake .. -DCMAKE_C_COMPILER=gcc -DCMAKE_INSTALL_PREFIX=/projects/b1092/software/fftw/3.3.8/
+ccmake ..
+#checking to make sure all flags are turned on or off from above (enable long double, enable OPENMP, enable FLOAT, disable BUILD_TESTS), everything was except one...can't remember which, oops
+make
+make install
