@@ -83,6 +83,8 @@ gmake check
 #permissions on libcfitsio.so.3 seem fine
 #old wcslib passes all checks
 #made a module for cfitsio, loaded it (now the libraries for cfitsio are in my LD_LIBRARY_PATH)
+module use /projects/b1011/blast-tng/modules
+module load cfitsio
 ./configure --prefix=/projects/b1011/blast-tng/software/wcslib/5.15/ --with-cfitsiolib=/projects/b1011/blast-tng/software/cfitsio/3.45/lib --with-cfitsioinc=/projects/b1011/blast-tng/software/cfitsio/3.45/include --without-pgplot
 gmake
 gmake check
