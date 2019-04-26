@@ -776,7 +776,7 @@ echo "using mpi ;" >> project-config.jam
 #cfitsio
 cd /projects/b1092/cfitsio/build/
 module purge
-module use /projects/b1092/modules
+module load gcc/4.6.3
 cmake .. -DCMAKE_C_COMPILER=/hpc/software/gcc/4.6.3-rhel7/bin/gcc -DCMAKE_INSTALL_PREFIX=/projects/b1092/software/cfitsio/3.45 -DCMAKE_Fortran_COMPLIER=gfortran
 #here I got an error about a path in CMakeCache.txt, so I edited the path names in that file and re-ran above command (seemed to work...)
 make
@@ -785,12 +785,27 @@ make install
 
 #fftw
 cd /projects/b1092/fftw-3.3.8/
+module list (gcc/4.6.3)
 module load mpi
+module list 
 ./configure --prefix=/projects/b1092/sofware/fftw/3.3.8 CC=gcc MPICC=mpicc --enable-mpi --enable-openmp --enable-shared
 module load cmake/3.1.0
 cd build/
 cmake .. -DCMAKE_C_COMPILER=gcc -DCMAKE_INSTALL_PREFIX=/projects/b1092/software/fftw/3.3.8/
-ccmake ..
+ccmake .. #(press c, q to save parameters)
 #checking to make sure all flags are turned on or off from above (enable long double, enable OPENMP, enable FLOAT, disable BUILD_TESTS), everything was except one...can't remember which, oops
 make
 make install
+
+#wclib
+cd /projects/b1092/wcslib-5.15
+module purge
+module load gcc/4.6.3
+module use /projects/b1092/modules/
+module load cfitsio
+./configure --prefix=/projects/b1011/blast-tng/software/wcslib/5.15/ --with-cfitsiolib=/projects/b1011/blast-tng/software/cfitsio/3.45/lib --with-cfitsioinc=/projects/b1011/blast-tng/software/cfitsio/3.45/include --without-pgplot
+gmake clean
+gmake
+gmake check
+#passes all tests
+gmake install
