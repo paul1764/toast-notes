@@ -803,7 +803,7 @@ module purge
 module load gcc/4.6.3
 module use /projects/b1092/modules/
 module load cfitsio
-./configure --prefix=/projects/b1011/blast-tng/software/wcslib/5.15/ --with-cfitsiolib=/projects/b1011/blast-tng/software/cfitsio/3.45/lib --with-cfitsioinc=/projects/b1011/blast-tng/software/cfitsio/3.45/include --without-pgplot
+./configure --prefix=/projects/b1092/software/wcslib/5.15/ --with-cfitsiolib=/projects/b1092/software/cfitsio/3.45/lib --with-cfitsioinc=/projects/b1092/software/cfitsio/3.45/include --without-pgplot
 gmake clean
 gmake
 gmake check
