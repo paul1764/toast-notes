@@ -809,3 +809,35 @@ gmake
 gmake check
 #passes all tests
 gmake install
+
+#5/1/2019
+#attempt to install moat (failed in same place as it did previously)
+cd /projects/b1092
+cp -r ../b1011/blast-tng/MOAT_3/ .
+cd MOAT_3/MOAT
+module use /projects/b1092/modules/
+module load python
+module load gcc/4.6.3
+module load mpi/openmpi-1.6.3-gcc-4.6.3
+module load fftw
+module load lapack
+module load boost
+./configure --prefix=/projects/b1092/software/moat --with-boost=/projects/b1092/software/boost/1.61.0 BOOST_ROOT=/projects/b1092/software/boost/1.61.0 MPICXX=mpic++ CC=gcc CXX=g++ F77=gfortran LIBS=-lgomp LIBS=-lfftw3 --with-fftw-libs=-L/projects/b1092/software/fftw/3.3.8/lib64 CFLAGS=-I/projects/b1092/software/fftw/3.3.8/include CXXFLAGS=-I/projects/b1092/software/fftw/3.3.8/include --with-fftw-cpp=-I/projects/b1092/software/fftw/3.3.8/include
+make clean
+make
+make check
+#output:
+#Testing dense matrix ops...
+#PROFILE:  TEST_MV (Matrix-Vector test time) :
+#PROFILE:     Elapsed process time = 1.648071e-01 seconds
+#PROFILE:     Total thread time = 9.229197e+00 thread-seconds
+#PROFILE:     Active thread time = 1.648071e-01 thread-seconds
+#PROFILE:     Idle thread time = 9.064389e+00 thread-seconds
+#PROFILE:     Thread efficiency = 1.79%
+#terminate called after throwing an instance of 'moat::exception'
+#  what():  Exception at line 142 of file frameworks/03_la/test_mv.cpp:  Fail on transposed output vector consistency
+#/bin/sh: line 5: 42667 Aborted                 ${dir}$tst
+#FAIL: moat_test
+make install
+#did this because this is what was done previously. I must say that it is somewhat worrisome if this is failing in a matrix
+#operation since the mapmaker relies on inverting matricies 
