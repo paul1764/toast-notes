@@ -952,3 +952,5 @@ toast_mpi_fdist.o: In function 'MAIN__':
 /projects/b1092/TOAST_5/TOAST/src/tests-mpi/toast_mpi_fdist.f03:87: undefined reference to 'mpi_abort_'
 
 #it is the second step that has a problem, the /bin/sh one. We tried running the first two ourselves and the second one reproduced this error
+#try adding include folder for mpi in configure in CFLAGS
+#also adding -L/.../lib for mpi in LDFLAGS
