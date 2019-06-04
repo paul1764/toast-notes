@@ -841,3 +841,114 @@ make check
 make install
 #did this because this is what was done previously. I must say that it is somewhat worrisome if this is failing in a matrix
 #operation since the mapmaker relies on inverting matricies 
+
+#6/4/2019
+#looks like when moat fails the check it stops and doesn't check anything else
+#could remove references to 03_la directory in src/libmoat/frameworks/Makefile
+
+#toast
+module purge
+module use /projects/b1092/blast-tng/modules
+module load python
+module load gcc/4.6.3
+module load mpi/openmpi-1.6.3-gcc-4.6.3
+module load fftw
+module load lapack
+module load boost
+module load moat
+module load cfitsio
+module load wcslib
+module load getdata
+# for some reason needed automake
+module load automake/1.15
+
+#changed all paths to point to b1092 installation of libraries except for the libboost_python library that we had to make a link to, that one doesn't exist in our anaconda
+./configure --prefix=/projects/b1092/software/toast --with-lapack=/projects/b1092/software/lapack/3.6.0/lib64/liblapack.so --with-blas=/projects/b1092/software/lapack/3.6.0/lib64/libblas.so --with-cfitsio=/projects/b1092/software/cfitsio/3.45 --with-hdf5=no MPICC=mpicc MPICXX=mpic++ MPIFC=mpif90 CC=gcc CXX=g++ FC=gfortran --with-moatconfig=/projects/b1092/software/moat/bin/moatconfig --with-wcslib=/projects/b1092/software/wcslib/5.15 --enable-exp-blast --with-getdata=/projects/b1092/software/getdata/0.9.3 CFLAGS="-I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" CXXFLAGS="-I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" CPPFLAGS="-I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" LDFLAGS="-L/projects/b1092/software/anaconda/lib" BOOST_ROOT=/projects/b1092/blast-tng/software/boost/1.61.0
+
+#fixing BOOST_ROOT, still was wrong path
+./configure --prefix=/projects/b1092/software/toast --with-lapack=/projects/b1092/software/lapack/3.6.0/lib64/liblapack.so --with-blas=/projects/b1092/software/lapack/3.6.0/lib64/libblas.so --with-cfitsio=/projects/b1092/software/cfitsio/3.45 --with-hdf5=no MPICC=mpicc MPICXX=mpic++ MPIFC=mpif90 CC=gcc CXX=g++ FC=gfortran --with-moatconfig=/projects/b1092/software/moat/bin/moatconfig --with-wcslib=/projects/b1092/software/wcslib/5.15 --enable-exp-blast --with-getdata=/projects/b1092/software/getdata/0.9.3 CFLAGS="-I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" CXXFLAGS="-I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" CPPFLAGS="-I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" LDFLAGS="-L/projects/b1092/software/anaconda/lib" BOOST_ROOT=/projects/b1092/software/boost/1.61.0
+
+make
+#failed on some library conflicts:
+#/usr/bin/ld: warning: libgfortran.so.3, needed by /projects/b1092/software/lapack/3.6.0/lib64/liblapack.so, may conflict with libgfortran.so.4
+#/usr/bin/ld: warning: libbz2.so.1, needed by /projects/b1092/software/getdata/0.9.3/lib/libgetdata++.so, may conflict with libbz2.so.1.0
+
+# making a conda environment with just basic python to avoid library conflicts
+conda create --prefix /projects/b1092/software/toast-python python=2.7
+conda activate /projects/b1092/software/toast-python
+
+#try again to configure and make
+./configure --prefix=/projects/b1092/software/toast --with-lapack=/projects/b1092/software/lapack/3.6.0/lib64/liblapack.so --with-blas=/projects/b1092/software/lapack/3.6.0/lib64/libblas.so --with-cfitsio=/projects/b1092/software/cfitsio/3.45 --with-hdf5=no MPICC=mpicc MPICXX=mpic++ MPIFC=mpif90 CC=gcc CXX=g++ FC=gfortran --with-moatconfig=/projects/b1092/software/moat/bin/moatconfig --with-wcslib=/projects/b1092/software/wcslib/5.15 --enable-exp-blast --with-getdata=/projects/b1092/software/getdata/0.9.3 CFLAGS="-I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" CXXFLAGS="-I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" CPPFLAGS="-I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" LDFLAGS="-L/projects/b1092/software/anaconda/lib" BOOST_ROOT=/projects/b1092/software/boost/1.61.0
+make
+#/usr/bin/ld: warning: libgfortran.so.3, needed by /projects/b1092/software/lapack/3.6.0/lib64/liblapack.so, may conflict with libgfortran.so.4
+
+#forgot to clean...
+make clean
+./configure --prefix=/projects/b1092/software/toast --with-lapack=/projects/b1092/software/lapack/3.6.0/lib64/liblapack.so --with-blas=/projects/b1092/software/lapack/3.6.0/lib64/libblas.so --with-cfitsio=/projects/b1092/software/cfitsio/3.45 --with-hdf5=no MPICC=mpicc MPICXX=mpic++ MPIFC=mpif90 CC=gcc CXX=g++ FC=gfortran --with-moatconfig=/projects/b1092/software/moat/bin/moatconfig --with-wcslib=/projects/b1092/software/wcslib/5.15 --enable-exp-blast --with-getdata=/projects/b1092/software/getdata/0.9.3 CFLAGS="-I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" CXXFLAGS="-I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" CPPFLAGS="-I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" LDFLAGS="-L/projects/b1092/software/anaconda/lib" BOOST_ROOT=/projects/b1092/software/boost/1.61.0
+
+#still had regular anaconda libs in the LDFLAGS, start again with configure
+make clean
+./configure --prefix=/projects/b1092/software/toast --with-lapack=/projects/b1092/software/lapack/3.6.0/lib64/liblapack.so --with-blas=/projects/b1092/software/lapack/3.6.0/lib64/libblas.so --with-cfitsio=/projects/b1092/software/cfitsio/3.45 --with-hdf5=no MPICC=mpicc MPICXX=mpic++ MPIFC=mpif90 CC=gcc CXX=g++ FC=gfortran --with-moatconfig=/projects/b1092/software/moat/bin/moatconfig --with-wcslib=/projects/b1092/software/wcslib/5.15 --enable-exp-blast --with-getdata=/projects/b1092/software/getdata/0.9.3 CFLAGS="-I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" CXXFLAGS="-I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" CPPFLAGS="-I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" LDFLAGS="-L/projects/b1092/software/toast-python/lib" BOOST_ROOT=/projects/b1092/software/boost/1.61.0
+make
+#got an error about mpi conflicts, noticed we had the wrong version of fftw. we had the system one, we forgot to make our own module
+#got to rebuild moat then toast, they are the only ones with fftw dependencies
+
+
+#moat
+#not in conda environment, never needed it before
+cd /projects/b1092/MOAT_3/MOAT
+module purge
+module use /projects/b1092/modules/
+module load python
+module load gcc/4.6.3
+module load mpi/openmpi-1.6.3-gcc-4.6.3
+module load fftw
+module load lapack
+module load boost
+./configure --prefix=/projects/b1092/software/moat --with-boost=/projects/b1092/software/boost/1.61.0 BOOST_ROOT=/projects/b1092/software/boost/1.61.0 MPICXX=mpic++ CC=gcc CXX=g++ F77=gfortran LIBS=-lgomp LIBS=-lfftw3 --with-fftw-libs=-L/projects/b1092/software/fftw/3.3.8/lib64 CFLAGS=-I/projects/b1092/software/fftw/3.3.8/include CXXFLAGS=-I/projects/b1092/software/fftw/3.3.8/include --with-fftw-cpp=-I/projects/b1092/software/fftw/3.3.8/include
+make clean
+./configure --prefix=/projects/b1092/software/moat --with-boost=/projects/b1092/software/boost/1.61.0 BOOST_ROOT=/projects/b1092/software/boost/1.61.0 MPICXX=mpic++ CC=gcc CXX=g++ F77=gfortran LIBS=-lgomp LIBS=-lfftw3 --with-fftw-libs=-L/projects/b1092/software/fftw/3.3.8/lib64 CFLAGS=-I/projects/b1092/software/fftw/3.3.8/include CXXFLAGS=-I/projects/b1092/software/fftw/3.3.8/include --with-fftw-cpp=-I/projects/b1092/software/fftw/3.3.8/include
+make
+make check
+#same dense matrix ops check fails like always
+make install
+
+#toast
+cd /projects/b1092/TOAST_5/TOAST
+module purge
+module use /projects/b1092/blast-tng/modules
+module load python
+module load gcc/4.6.3
+module load mpi/openmpi-1.6.3-gcc-4.6.3
+module load fftw
+module load lapack
+module load boost
+module load moat
+module load cfitsio
+module load wcslib
+module load getdata
+module load automake/1.15
+
+make clean
+conda activate /projects/b1092/software/toast-python
+./configure --prefix=/projects/b1092/software/toast --with-lapack=/projects/b1092/software/lapack/3.6.0/lib64/liblapack.so --with-blas=/projects/b1092/software/lapack/3.6.0/lib64/libblas.so --with-cfitsio=/projects/b1092/software/cfitsio/3.45 --with-hdf5=no MPICC=mpicc MPICXX=mpic++ MPIFC=mpif90 CC=gcc CXX=g++ FC=gfortran --with-moatconfig=/projects/b1092/software/moat/bin/moatconfig --with-wcslib=/projects/b1092/software/wcslib/5.15 --enable-exp-blast --with-getdata=/projects/b1092/software/getdata/0.9.3 CFLAGS="-I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" CXXFLAGS="-I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" CPPFLAGS="-I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" LDFLAGS="-L/projects/b1092/software/toast-python/lib" BOOST_ROOT=/projects/b1092/software/boost/1.61.0
+make clean
+make
+
+#compile step that failed:
+mpif90 -cpp -I../../src/libtoast -I../../src/libtoast/map -I../../src/libtoast/IO -I../../src/libtoast/math -I../../src/libtoast/math/tpm -I../../src/libtoast-mpi -I../../src/libtoast-mpi/math -I../../src/libtoast-mpi/IO -I../../src/libtoast-mpi/map -I../../src/tests-mpi  -I/projects/b1092/software/moat/include -I/projects/b1092/software/boost/1.61.0/include -fopenmp -I/projects/b1092/software/fftw/3.3.8/include -I/projects/b1092/software/cfitsio/3.45/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/getdata/0.9.3/include   -I/projects/b1092/software/wcslib/5.15/include -I../../src/libtoast -I../../src/libtoast-mpi -g -O2 -c -o toast_mpi_fdist.o toast_mpi_fdist.f03
+
+/bin/sh ../../libtool --tag=CXX   --mode=link mpic++ -fopenmp -I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost  -L/projects/b1092/software/toast-python/lib -o toast_mpi_fdist toast_mpi_fdist.o ../../src/libtoast-mpi/libftoast-mpi.la ../../src/libtoast/libftoast.la ../../src/libtoast-mpi/libtoast-mpi.la ../../src/libtoast/libtoast.la -lexpat -L/projects/b1092/software/moat/lib -lmoat-mpi -lmoat -lm -fopenmp -L/projects/b1092/software/fftw/3.3.8/lib64 -L/projects/b1092/software/boost/1.61.0/lib -Wl,-R,/projects/b1092/software/boost/1.61.0/lib -lboost_mpi -L/projects/b1092/software/moat/lib -lmoat -lm -fopenmp -L/projects/b1092/software/fftw/3.3.8/lib64 -L/projects/b1092/software/cfitsio/3.45/lib -lcfitsio -L/projects/b1092/software/getdata/0.9.3/lib -lgetdata++ -lgetdata -lbz2 -lz -L/projects/b1092/software/wcslib/5.15/lib -lwcs -lm   -L/projects/b1092/software/boost/1.61.0/lib -Wl,-R,/projects/b1092/software/boost/1.61.0/lib -lboost_serialization -L/projects/b1092/software/boost/1.61.0/lib -Wl,-R,/projects/b1092/software/boost/1.61.0/lib -lboost_regex /projects/b1092/software/lapack/3.6.0/lib64/liblapack.so /projects/b1092/software/lapack/3.6.0/lib64/libblas.so -lm -L/projects/b1092/software/toast-python/lib -L/hpc/software/gcc/4.6.3-rhel7/bin/../lib/gcc/x86_64-redhat-linux-gnu/4.6.3 -L/hpc/software/gcc/4.6.3-rhel7/bin/../lib/gcc -L/hpc/software/gcc/4.6.3-rhel7/bin/../lib/gcc/x86_64-redhat-linux-gnu/4.6.3/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/hpc/software/gcc/4.6.3-rhel7/bin/../lib/gcc/x86_64-redhat-linux-gnu/4.6.3/../../.. -lgfortran -lm -lquadmath -fopenmp  -L/projects/b1092/software/toast-python/lib -L/hpc/software/gcc/4.6.3-rhel7/bin/../lib/gcc/x86_64-redhat-linux-gnu/4.6.3 -L/hpc/software/gcc/4.6.3-rhel7/bin/../lib/gcc -L/hpc/software/gcc/4.6.3-rhel7/bin/../lib/gcc/x86_64-redhat-linux-gnu/4.6.3/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/hpc/software/gcc/4.6.3-rhel7/bin/../lib/gcc/x86_64-redhat-linux-gnu/4.6.3/../../.. -lgfortran -lm -lquadmath 
+
+libtool: link: mpic++ -fopenmp -I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost -o .libs/toast_mpi_fdist toast_mpi_fdist.o -fopenmp -Wl,-R -Wl,/projects/b1092/software/boost/1.61.0/lib -fopenmp -Wl,-R -Wl,/projects/b1092/software/boost/1.61.0/lib -Wl,-R -Wl,/projects/b1092/software/boost/1.61.0/lib /projects/b1092/software/lapack/3.6.0/lib64/liblapack.so /projects/b1092/software/lapack/3.6.0/lib64/libblas.so -fopenmp  -L/projects/b1092/software/toast-python/lib ../../src/libtoast-mpi/.libs/libftoast-mpi.so ../../src/libtoast/.libs/libftoast.so ../../src/libtoast-mpi/.libs/libtoast-mpi.so ../../src/libtoast/.libs/libtoast.so -L/projects/b1092/TOAST_5/TOAST/src/libtoast/map -L/projects/b1092/TOAST_5/TOAST/src/libtoast/IO -L/projects/b1092/TOAST_5/TOAST/src/libtoast/math -L/projects/b1092/TOAST_5/TOAST/src/libtoast/math/tpm -lexpat -L/projects/b1092/software/moat/lib /projects/b1092/software/moat/lib/libmoat-mpi.so -L/projects/b1092/software/fftw/3.3.8/lib64 -L/projects/b1092/software/boost/1.61.0/lib -lboost_mpi /projects/b1092/software/moat/lib/libmoat.so -lfftw3 -L/projects/b1092/software/cfitsio/3.45/lib -lcfitsio -L/projects/b1092/software/getdata/0.9.3/lib /projects/b1092/software/getdata/0.9.3/lib/libgetdata++.so /software/gcc/4.6.3-rhel7/lib/../lib64/libstdc++.so /projects/b1092/software/getdata/0.9.3/lib/libgetdata.so -llzma -lbz2 -lz -L/projects/b1092/software/wcslib/5.15/lib -lwcs -lboost_serialization -lboost_regex -L/hpc/software/gcc/4.6.3-rhel7/bin/../lib/gcc/x86_64-redhat-linux-gnu/4.6.3 -L/hpc/software/gcc/4.6.3-rhel7/bin/../lib/gcc -L/hpc/software/gcc/4.6.3-rhel7/bin/../lib/gcc/x86_64-redhat-linux-gnu/4.6.3/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/hpc/software/gcc/4.6.3-rhel7/bin/../lib/gcc/x86_64-redhat-linux-gnu/4.6.3/../../.. /software/gcc/4.6.3-rhel7/lib/../lib64/libgfortran.so /software/gcc/4.6.3-rhel7/lib/../lib64/libquadmath.so -lm -lquadmath -Wl,-rpath -Wl,/projects/b1092/software/toast/lib -Wl,-rpath -Wl,/projects/b1092/software/moat/lib -Wl,-rpath -Wl,/projects/b1092/software/getdata/0.9.3/lib -Wl,-rpath -Wl,/software/gcc/4.6.3-rhel7/lib/../lib64
+toast_mpi_fdist.o: In function 'MAIN__':
+/projects/b1092/TOAST_5/TOAST/src/tests-mpi/toast_mpi_fdist.f03:76: undefined reference to 'mpi_init_'
+/projects/b1092/TOAST_5/TOAST/src/tests-mpi/toast_mpi_fdist.f03:77: undefined reference to 'mpi_comm_rank_'
+/projects/b1092/TOAST_5/TOAST/src/tests-mpi/toast_mpi_fdist.f03:78: undefined reference to 'mpi_comm_size_'
+/projects/b1092/TOAST_5/TOAST/src/tests-mpi/toast_mpi_fdist.f03:205: undefined reference to 'mpi_barrier_'
+/projects/b1092/TOAST_5/TOAST/src/tests-mpi/toast_mpi_fdist.f03:256: undefined reference to 'mpi_exscan_'
+/projects/b1092/TOAST_5/TOAST/src/tests-mpi/toast_mpi_fdist.f03:266: undefined reference to 'mpi_barrier_'
+/projects/b1092/TOAST_5/TOAST/src/tests-mpi/toast_mpi_fdist.f03:372: undefined reference to 'mpi_finalize_'
+/projects/b1092/TOAST_5/TOAST/src/tests-mpi/toast_mpi_fdist.f03:87: undefined reference to 'mpi_abort_'
+
+#it is the second step that has a problem, the /bin/sh one. We tried running the first two ourselves and the second one reproduced this error
