@@ -848,7 +848,7 @@ make install
 
 #toast
 module purge
-module use /projects/b1092/blast-tng/modules
+module use /projects/b1092/modules
 module load python
 module load gcc/4.6.3
 module load mpi/openmpi-1.6.3-gcc-4.6.3
@@ -916,7 +916,7 @@ make install
 #toast
 cd /projects/b1092/TOAST_5/TOAST
 module purge
-module use /projects/b1092/blast-tng/modules
+module use /projects/b1092/modules
 module load python
 module load gcc/4.6.3
 module load mpi/openmpi-1.6.3-gcc-4.6.3
@@ -932,6 +932,7 @@ module load automake/1.15
 make clean
 conda activate /projects/b1092/software/toast-python
 ./configure --prefix=/projects/b1092/software/toast --with-lapack=/projects/b1092/software/lapack/3.6.0/lib64/liblapack.so --with-blas=/projects/b1092/software/lapack/3.6.0/lib64/libblas.so --with-cfitsio=/projects/b1092/software/cfitsio/3.45 --with-hdf5=no MPICC=mpicc MPICXX=mpic++ MPIFC=mpif90 CC=gcc CXX=g++ FC=gfortran --with-moatconfig=/projects/b1092/software/moat/bin/moatconfig --with-wcslib=/projects/b1092/software/wcslib/5.15 --enable-exp-blast --with-getdata=/projects/b1092/software/getdata/0.9.3 CFLAGS="-I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" CXXFLAGS="-I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" CPPFLAGS="-I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" LDFLAGS="-L/projects/b1092/software/toast-python/lib" BOOST_ROOT=/projects/b1092/software/boost/1.61.0
+
 make clean
 make
 
@@ -954,3 +955,34 @@ toast_mpi_fdist.o: In function 'MAIN__':
 #it is the second step that has a problem, the /bin/sh one. We tried running the first two ourselves and the second one reproduced this error
 #try adding include folder for mpi in configure in CFLAGS
 #also adding -L/.../lib for mpi in LDFLAGS
+
+#6/13/19
+#toast
+
+cd /projects/b1092/TOAST_5/TOAST
+module purge
+module use /projects/b1092/modules
+module load python
+module load gcc/4.6.3
+module load mpi/openmpi-1.6.3-gcc-4.6.3
+module load fftw
+module load lapack
+module load boost
+module load moat
+module load cfitsio
+module load wcslib
+module load getdata
+module load automake/1.15
+
+make clean
+conda activate /projects/b1092/software/toast-python
+
+#this configure has the mpi include in CFLAGS, CXXFLAGS, CPPFLAGS and has mpi lib64 in LDFLAGS
+./configure --prefix=/projects/b1092/software/toast --with-lapack=/projects/b1092/software/lapack/3.6.0/lib64/liblapack.so --with-blas=/projects/b1092/software/lapack/3.6.0/lib64/libblas.so --with-cfitsio=/projects/b1092/software/cfitsio/3.45 --with-hdf5=no MPICC=mpicc MPICXX=mpic++ MPIFC=mpif90 CC=gcc CXX=g++ FC=gfortran --with-moatconfig=/projects/b1092/software/moat/bin/moatconfig --with-wcslib=/projects/b1092/software/wcslib/5.15 --enable-exp-blast --with-getdata=/projects/b1092/software/getdata/0.9.3 CFLAGS="-I/software/mpi/openmpi-1.6.3-gcc-4.6.3-RH7/include -I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" CXXFLAGS="-I/software/mpi/openmpi-1.6.3-gcc-4.6.3-RH7/include -I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" CPPFLAGS="-I/software/mpi/openmpi-1.6.3-gcc-4.6.3-RH7/include -I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" LDFLAGS="-I/software/mpi/openmpi-1.6.3-gcc-4.6.3-RH7/lib64 -L/projects/b1092/software/toast-python/lib" BOOST_ROOT=/projects/b1092/software/boost/1.61.0
+
+make clean
+make
+#no errors!
+make install
+make check
+#all (2) tests passed
