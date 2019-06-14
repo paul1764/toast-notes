@@ -68,26 +68,31 @@ module load gcc/4.6.3
 module load mpi/openmpi-1.6.3-gcc-4.6.3
 module load cmake/3.1.0
 #make a directory for building with cmake (if it exists, rm it first so we start fresh)
-rm -rf /projects/b1011/blast-tng/fftw-3.3.8/build
-mkdir /projects/b1011/blast-tng/fftw-3.3.8/build
-cd /projects/b1011/blast-tng/fftw-3.3.8/build
+rm -rf /projects/b1092/fftw-3.3.8/build
+mkdir /projects/b1092/fftw-3.3.8/build
+cd /projects/b1092/fftw-3.3.8/build
 
-cmake .. -DCMAKE_C_COMPILER=gcc -DCMAKE_INSTALL_PREFIX=/projects/b1011/blast-tng/software/fftw/3.3.8/
-ccmake ..
+cmake .. -DCMAKE_C_COMPILER=gcc -DCMAKE_INSTALL_PREFIX=/projects/b1092/software/fftw/3.3.8/
+#have to do ccmake, make, make install several times because each time we only get one set of libraries (only one precision at a time)
+ccmake .. 
+
 # must turn BUILD_TESTS OFF in ccmake, otherwise the build fails
 # turn BUILD_SHARED_LIBS ON
+# these two stay the same way the whole time
 
 # Then we need to make a few sets of libraries
 # turn ENABLE_OPENMP ON in ccmake
 # turn both ENABLE_FLOAT and ENABLE_LONG_DOUBLE OFF (this will make the double libs, which are the defaults)
+
+#`c', then `g' to configure and generate the Makefile
 make
 make install
 
-ccmake .. #again, this time turn ENABLE_FLOAT and ENABLE_OPENMP ON
+ccmake .. #again, this time turn ENABLE_FLOAT and ENABLE_OPENMP ON, ENABLE_LONG_DOUBLE OFF
 make
 make install
 
-ccmake .. #again, this time turn ENABLE_LONG_DOUBLE and ENABLE_OPENMP ON
+ccmake .. #again, this time turn ENABLE_LONG_DOUBLE and ENABLE_OPENMP ON, ENABLE_FLOAT OFF
 make
 make install
 
@@ -139,13 +144,16 @@ make install
 
 
 #TOAST
-cd /projects/b1011/blast-tng/TOAST_5/TOAST
 
+# changed line 3 of /projects/b1011/blast-tng/TOAST_5/TOAST/experiments/blast/IO/toast_blast.hpp to:
+#include <getdata/dirfile.h>
+
+cd /projects/b1092/TOAST_5/TOAST
 module purge
+module use /projects/b1092/modules
 module load python
 module load gcc/4.6.3
 module load mpi/openmpi-1.6.3-gcc-4.6.3
-module use /projects/b1011/blast-tng/modules
 module load fftw
 module load lapack
 module load boost
@@ -153,8 +161,18 @@ module load moat
 module load cfitsio
 module load wcslib
 module load getdata
+module load automake/1.15 #otherwise `make clean` doesn't work, shouldn't be needed to run toast
 
-# changed line 3 of /projects/b1011/blast-tng/TOAST_5/TOAST/experiments/blast/IO/toast_blast.hpp to:
-#include <getdata/dirfile.h>
-./configure --prefix=/projects/b1011/blast-tng/software/toast --with-lapack=/projects/b1011/blast-tng/software/lapack/3.6.0/lib64/liblapack.so --with-blas=/projects/b1011/blast-tng/software/lapack/3.6.0/lib64/libblas.so --with-cfitsio=/projects/b1011/blast-tng/software/cfitsio/3.45 --with-hdf5=no MPICC=mpicc MPICXX=mpic++ MPIFC=mpif90 CC=gcc CXX=g++ FC=gfortran --with-moatconfig=/projects/b1011/blast-tng/software/moat/bin/moatconfig --with-wcslib=/projects/b1011/blast-tng/software/wcslib/5.15 --enable-exp-blast --with-getdata=/projects/b1011/blast-tng/software/getdata/0.9.3 CFLAGS="-I/projects/b1011/blast-tng/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1011/blast-tng/software/getdata/0.9.3/include -I/projects/b1011/blast-tng/software/boost/1.61.0/include -I/projects/b1011/blast-tng/software/boost/1.61.0/include/boost" CXXFLAGS="-I/projects/b1011/blast-tng/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1011/blast-tng/software/getdata/0.9.3/include -I/projects/b1011/blast-tng/software/boost/1.61.0/include -I/projects/b1011/blast-tng/software/boost/1.61.0/include/boost" CPPFLAGS="-I/projects/b1011/blast-tng/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1011/blast-tng/software/getdata/0.9.3/include -I/projects/b1011/blast-tng/software/boost/1.61.0/include -I/projects/b1011/blast-tng/software/boost/1.61.0/include/boost" LDFLAGS="-L/software/anaconda2/lib -L/projects/b1011/fissel/pascal/Experimental/python/lib" BOOST_ROOT=/projects/b1011/blast-tng/software/boost/1.61.0
+make clean
+conda activate /projects/b1092/software/toast-python
+#using a clean conda environment to avoid python having extra libraries that conflict with ones from elsewhere
 
+#this configure has the mpi include in CFLAGS, CXXFLAGS, CPPFLAGS and has mpi lib64 in LDFLAGS
+./configure --prefix=/projects/b1092/software/toast --with-lapack=/projects/b1092/software/lapack/3.6.0/lib64/liblapack.so --with-blas=/projects/b1092/software/lapack/3.6.0/lib64/libblas.so --with-cfitsio=/projects/b1092/software/cfitsio/3.45 --with-hdf5=no MPICC=mpicc MPICXX=mpic++ MPIFC=mpif90 CC=gcc CXX=g++ FC=gfortran --with-moatconfig=/projects/b1092/software/moat/bin/moatconfig --with-wcslib=/projects/b1092/software/wcslib/5.15 --enable-exp-blast --with-getdata=/projects/b1092/software/getdata/0.9.3 CFLAGS="-I/software/mpi/openmpi-1.6.3-gcc-4.6.3-RH7/include -I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" CXXFLAGS="-I/software/mpi/openmpi-1.6.3-gcc-4.6.3-RH7/include -I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" CPPFLAGS="-I/software/mpi/openmpi-1.6.3-gcc-4.6.3-RH7/include -I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" LDFLAGS="-I/software/mpi/openmpi-1.6.3-gcc-4.6.3-RH7/lib64 -L/projects/b1092/software/toast-python/lib" BOOST_ROOT=/projects/b1092/software/boost/1.61.0
+
+make clean
+make
+#no errors!
+make install
+make check
+#all (2) tests passed

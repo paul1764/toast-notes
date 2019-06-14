@@ -773,7 +773,7 @@ echo "using mpi ;" >> project-config.jam
 ./b2
 ./b2 install
 
-#cfitsio
+# Cfitsio
 cd /projects/b1092/cfitsio/build/
 module purge
 module load gcc/4.6.3
@@ -783,7 +783,7 @@ make
 make install 
 #things seemed to work without error, there is now cfitsio listed in the software directory
 
-#fftw
+# FFTW
 cd /projects/b1092/fftw-3.3.8/
 module list (gcc/4.6.3)
 module load mpi
@@ -797,7 +797,7 @@ ccmake .. #(press c, q to save parameters)
 make
 make install
 
-#wclib
+# Wcslib
 cd /projects/b1092/wcslib-5.15
 module purge
 module load gcc/4.6.3
@@ -986,3 +986,98 @@ make
 make install
 make check
 #all (2) tests passed
+
+#6/14/19
+#made a module for toast that loads all the dependency modules, only have to `module use ...` and then `module load toast` now
+module use /projects/b1092/modules
+module load toast
+
+#also noticed that the old toast module modified the python path to include pytoast, so I moved pytoast from the old project space to the new, and the toast module still adds this directory to the python path
+
+#trying to use toast now:
+#using old_toast_things/scripts/toast_mickey_500.sh
+export SCRATCH=/projects/b1092/old_toast_things/runfiles
+
+# DIRECTORY TO RUN - $PBS_O_WORKDIR is directory job was submitted from
+cd $SCRATCH/maps_2012/mickey
+
+# SET THE NUMBER OF THREADS PER PROCESS:
+export OMP_NUM_THREADS=1
+
+toast_info "good_500_p10_2493151_run.xml" --binary "good_500_p10_2493151_run.bin"
+
+#boost eror message:
+##terminate called after throwing an instance of 'boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<std::logic_error> >'
+##  what():  character conversion failed
+##Aborted
+
+#ran in gdb:
+#found some things referencing boost 1.53
+ldd /projects/b1092/software/toast/bin/toast_info
+#looking for a library with -mt ending again:
+#libboost_program_options-mt.so.1.53.0 => /lib64/libboost_program_options-mt.so.1.53.0
+
+#made a link to our real 1.60.0 library
+ln -s libboost_program_options.so.1.61.0 libboost_program_options-mt.so
+
+#also looking for an fftw3 library, but not getting it from us:
+#libfftw3.so.3 => /lib64/libfftw3.so.3
+#I think this is because we tried to make all the libraries (of various precisions) in one step, and it only made the long double ones
+
+
+# FFTW
+module purge
+module use /projects/b1092/modules
+module load gcc/4.6.3
+module load mpi/openmpi-1.6.3-gcc-4.6.3
+module load cmake/3.1.0
+#make a directory for building with cmake (if it exists, rm it first so we start fresh)
+rm -rf /projects/b1092/fftw-3.3.8/build
+mkdir /projects/b1092/fftw-3.3.8/build
+cd /projects/b1092/fftw-3.3.8/build
+
+
+cmake .. -DCMAKE_C_COMPILER=gcc -DCMAKE_INSTALL_PREFIX=/projects/b1092/software/fftw/3.3.8/
+#have to do ccmake, make, make install several times because each time we only get one set of libraries (only one precision at a time)
+ccmake .. 
+
+# must turn BUILD_TESTS OFF in ccmake, otherwise the build fails
+# turn BUILD_SHARED_LIBS ON
+# these two stay the same way the whole time
+
+# Then we need to make a few sets of libraries
+# turn ENABLE_OPENMP ON in ccmake
+# turn both ENABLE_FLOAT and ENABLE_LONG_DOUBLE OFF (this will make the double libs, which are the defaults)
+
+#`c', then `g' to configure and generate the Makefile
+make
+make install
+
+ccmake .. #again, this time turn ENABLE_FLOAT and ENABLE_OPENMP ON, ENABLE_LONG_DOUBLE OFF
+make
+make install
+
+ccmake .. #again, this time turn ENABLE_LONG_DOUBLE and ENABLE_OPENMP ON, ENABLE_FLOAT OFF
+make
+make install
+
+
+#need to rebuild moat and toast now
+#moat
+#not in conda environment, never needed it before
+cd /projects/b1092/MOAT_3/MOAT
+module purge
+module use /projects/b1092/modules/
+module load python
+module load gcc/4.6.3
+module load mpi/openmpi-1.6.3-gcc-4.6.3
+module load fftw
+module load lapack
+module load boost
+./configure --prefix=/projects/b1092/software/moat --with-boost=/projects/b1092/software/boost/1.61.0 BOOST_ROOT=/projects/b1092/software/boost/1.61.0 MPICXX=mpic++ CC=gcc CXX=g++ F77=gfortran LIBS=-lgomp LIBS=-lfftw3 --with-fftw-libs=-L/projects/b1092/software/fftw/3.3.8/lib64 CFLAGS=-I/projects/b1092/software/fftw/3.3.8/include CXXFLAGS=-I/projects/b1092/software/fftw/3.3.8/include --with-fftw-cpp=-I/projects/b1092/software/fftw/3.3.8/include
+make clean
+
+make
+make check
+#same dense matrix ops check fails like always
+make install
