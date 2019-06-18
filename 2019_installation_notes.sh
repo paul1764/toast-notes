@@ -1081,3 +1081,103 @@ make
 make check
 #same dense matrix ops check fails like always
 make install
+
+
+#6/18/19
+cd /projects/b1092/TOAST_5/TOAST
+module purge
+module use /projects/b1092/modules
+module load python
+module load gcc/4.6.3
+module load mpi/openmpi-1.6.3-gcc-4.6.3
+module load fftw
+module load lapack
+module load boost
+module load moat
+module load cfitsio
+module load wcslib
+module load getdata
+module load automake/1.15
+
+make clean
+conda activate /projects/b1092/software/toast-python
+
+#this configure has the mpi include in CFLAGS, CXXFLAGS, CPPFLAGS and has mpi lib64 in LDFLAGS
+./configure --prefix=/projects/b1092/software/toast --with-lapack=/projects/b1092/software/lapack/3.6.0/lib64/liblapack.so --with-blas=/projects/b1092/software/lapack/3.6.0/lib64/libblas.so --with-cfitsio=/projects/b1092/software/cfitsio/3.45 --with-hdf5=no MPICC=mpicc MPICXX=mpic++ MPIFC=mpif90 CC=gcc CXX=g++ FC=gfortran --with-moatconfig=/projects/b1092/software/moat/bin/moatconfig --with-wcslib=/projects/b1092/software/wcslib/5.15 --enable-exp-blast --with-getdata=/projects/b1092/software/getdata/0.9.3 CFLAGS="-I/software/mpi/openmpi-1.6.3-gcc-4.6.3-RH7/include -I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" CXXFLAGS="-I/software/mpi/openmpi-1.6.3-gcc-4.6.3-RH7/include -I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" CPPFLAGS="-I/software/mpi/openmpi-1.6.3-gcc-4.6.3-RH7/include -I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" LDFLAGS="-I/software/mpi/openmpi-1.6.3-gcc-4.6.3-RH7/lib64 -L/projects/b1092/software/toast-python/lib" BOOST_ROOT=/projects/b1092/software/boost/1.61.0
+
+make clean
+make
+#no errors!
+make check
+#all (2) tests passed
+make install
+
+
+#trying to run toast_info:
+#tried many different xml files
+#some "cannot to encode BLAST detector angle" because they don't have the angle field
+toast_info mickey_hen_500_run.xml --binary mickey_hen_500_run.bin
+#terminate called after throwing an instance of 'toast::exception'
+ # what():  Exception at line 201 of file ../../../experiments/blast/IO/dirfile_io_blast.cpp:  Failed to get dirfile start time
+#Aborted
+
+toast_info mickey_good_500_p10_good_C_run.xml --binary mickey_good_500_p10_good_C_run.bin19
+#terminate called after throwing an instance of 'toast::exception'
+ # what():  Exception at line 94 of file ../../../experiments/blast/IO/toast_detector_blast.cpp:  cannot encode BLAST detector angle
+#Aborted
+
+#some failed to get dirfile start time, because they are using the wrong suffix for the detector files, use _P24_C22_D20_F05_T19_ISC11SH_LMF
+#nope, that doesn't work either
+#this one after replacing suffixes
+toast_info mickey_hen_500_run.xml --binary mickey_hen_500_run.bin
+#terminate called after throwing an instance of 'toast::exception'
+ # what():  Exception at line 201 of file ../../../experiments/blast/IO/dirfile_io_blast.cpp:  Failed to get dirfile start time
+#Aborted
+
+#do I need to replace the other suffix, is it for the pointing data?
+
+
+#going to rebuild toast using libtool/2.4.6 from system instead of /artspace/pascal, don't know why we were doing that...
+
+cd /projects/b1092/TOAST_5/TOAST
+module purge
+module use /projects/b1092/modules
+module load python
+module load gcc/4.6.3
+module load mpi/openmpi-1.6.3-gcc-4.6.3
+module load fftw
+module load lapack
+module load boost
+module load moat
+module load cfitsio
+module load wcslib
+module load getdata
+module load libtool/2.4.6
+module load automake/1.15
+
+make clean
+conda activate /projects/b1092/software/toast-python
+
+#this configure has the mpi include in CFLAGS, CXXFLAGS, CPPFLAGS and has mpi lib64 in LDFLAGS
+./configure --prefix=/projects/b1092/software/toast --with-lapack=/projects/b1092/software/lapack/3.6.0/lib64/liblapack.so --with-blas=/projects/b1092/software/lapack/3.6.0/lib64/libblas.so --with-cfitsio=/projects/b1092/software/cfitsio/3.45 --with-hdf5=no MPICC=mpicc MPICXX=mpic++ MPIFC=mpif90 CC=gcc CXX=g++ FC=gfortran --with-moatconfig=/projects/b1092/software/moat/bin/moatconfig --with-wcslib=/projects/b1092/software/wcslib/5.15 --enable-exp-blast --with-getdata=/projects/b1092/software/getdata/0.9.3 CFLAGS="-I/software/mpi/openmpi-1.6.3-gcc-4.6.3-RH7/include -I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" CXXFLAGS="-I/software/mpi/openmpi-1.6.3-gcc-4.6.3-RH7/include -I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" CPPFLAGS="-I/software/mpi/openmpi-1.6.3-gcc-4.6.3-RH7/include -I/projects/b1092/software/wcslib/5.15/include/wcslib-5.15 -I/projects/b1092/software/getdata/0.9.3/include -I/projects/b1092/software/boost/1.61.0/include -I/projects/b1092/software/boost/1.61.0/include/boost" LDFLAGS="-I/software/mpi/openmpi-1.6.3-gcc-4.6.3-RH7/lib64 -L/projects/b1092/software/toast-python/lib" BOOST_ROOT=/projects/b1092/software/boost/1.61.0
+
+make clean
+make
+#no errors!
+make check
+#all (2) tests passed
+make install
+
+#still has artspace lib, because our mpi relies on it
+
+#tried running in an interactive session:
+srun -A b1094 -p ciera-std -t 1:00:00 --mem=50G -N 1 -n 28 --pty bash -l
+module use /projects/b1092/modules
+module load toast
+mpirun toast_mpi_map /projects/b1092/old_toast_things/runfiles/maps_2012/mickey/good_500_p10_2493151_run.bin --bin --diagntt --cov --gls --gls_maxiter 1 --gls_dump_iter -1 --rcond 0.01 --dist_chan 16 --out good_500_p10_2493151_run_test
+#terminate called after throwing an instance of 'toast::exception'
+  #what():  Exception at line 146 of file toast_run_binary.cpp:  File "/projects/b1092/old_toast_things/runfiles/maps_2012/mickey/good_500_p10_2493151_run.bin" was generated by a different source revision (101f23b6d7cfab4fed4ccbd1061d336e0dd582c0) than the current library (657b30112bcc6c79c7a6546596eccac91203366b)
+#also tried different -np parameters passed to mpirun and setting OMP_NUM_THREADS to see if toast was starting the right number of threads, and it was.
+toast_mpi_map --help #this didn't work, it would just sit there for a long time, not give the output or throw an error
+ldd /path/to/toast_mpi_map #compared this to what you get on a login node, no difference
+toast_map --help #this one worked, some kind of mpi problem

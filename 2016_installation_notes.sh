@@ -1,4 +1,4 @@
-Some of this information comes from Paul's notebook, other comes from emails between Paul, Giles, Pascal, Laura, and Steve. Mostly I have noted where something came from.
+#Some of this information comes from Paul's notebook, other comes from emails between Paul, Giles, Pascal, Laura, and Steve. Mostly I have noted where something came from.
 
 7/25/16 - notebook
 
@@ -35,7 +35,7 @@ import blast.mapmaker
 fails.
 
 
-blast.mapmaker relies on pytoast.blast.runblast module, which I don't see anywhere
+#blast.mapmaker relies on pytoast.blast.runblast module, which I don't see anywhere
 
 
 8/9/16 - notebook
@@ -173,9 +173,9 @@ Module files loaded by Pascal:
 
 9/1/16 - long email
 
-    when do_polarization = False (in toast_make_all_runs_lmf.py on hen), we still get qip and other polarization columns in the xml file
-    Pascal used sed to put alpha="0.0" in the xml files, toast_info can parse it and create a binary runfile
-    ran mapmaker, failed because it couldn't find a library, we thought it was because we forgot to load a module
+    #when do_polarization = False (in toast_make_all_runs_lmf.py on hen), we still get qip and other polarization columns in the xml file
+    #Pascal used sed to put alpha="0.0" in the xml files, toast_info can parse it and create a binary runfile
+    #ran mapmaker, failed because it couldn't find a library, we thought it was because we forgot to load a module
 
 9/2/16 - long email
 
@@ -201,7 +201,7 @@ Module files loaded by Pascal:
 
 9/8/16 - 9/19/16 - long email
 
-    fixed mismatched rates problem: script generating xml files had the file suffix (P24_C22...) wrong, so toast couldn't even find our TOD files
+    #fixed mismatched rates problem: script generating xml files had the file suffix (P24_C22...) wrong, so toast couldn't even find our TOD files
     correct suffix is: _P24_C22_D20_F05_T19_ISC11SH_LMF, this can be changed in toast_make_all_runs*.py, mp.bolo_suffix is the variable
     new error when running toast_mpi_map: what():  Exception at line 330 of file ../../../experiments/blast/IO/toast_pointing_blast.cpp:  cannot read pointing at non-standard sample rate: 100.158 (expect 100.158, err: 7.04721e-08)
     changed tolerance to from 5.0e-8 to 1.0e-7, as I found in /projects/b1011/fissel/new_toast/TOAST/experiments/blast/IO/toast_pointing_blast.cpp:line 327
@@ -232,7 +232,7 @@ Module files loaded by Pascal:
     Steve says that because the xml files had stokes="IQU" for the mapset, it would try to solve for polarization
     But if we only gave it one hwp angle, it would fail because it would try to invert a singular matrix
     so changed to stokes="I", and then it worked!
-    However, gls and naive maps looked the same, likely because we had no cross-linking (and we probably didn't have a noise model)
+    #However, gls and naive maps looked the same, likely because we had no cross-linking (and we probably didn't have a noise model)
 
 10/17/16 - email
 
@@ -242,7 +242,7 @@ Module files loaded by Pascal:
     mp.do_gls = False means a white noise model is used, with fixed per-detector weights
     mp.noise_use_model = True means the noise model is a simple fit to detector PSDs
     mp.noise_use_model = False means logarithmically binned PSDs are used (not actually sure how this is a noise model)
-    Usually the noise_use_model options give the same thing, but when they aren't, Steve prefers log-binned PSD data. He used that for all his maps
+    #Usually the noise_use_model options give the same thing, but when they aren't, Steve prefers log-binned PSD data. He used that for all his maps
     But need extra data (the PSDs) for noise_use_model = False, so with no extra data (beyond bolotable) do noise_use_model = True and that is almost as good (according to Steve)
 
 10/18/16 - email
