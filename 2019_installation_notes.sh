@@ -1181,3 +1181,40 @@ mpirun toast_mpi_map /projects/b1092/old_toast_things/runfiles/maps_2012/mickey/
 toast_mpi_map --help #this didn't work, it would just sit there for a long time, not give the output or throw an error
 ldd /path/to/toast_mpi_map #compared this to what you get on a login node, no difference
 toast_map --help #this one worked, some kind of mpi problem
+
+
+#6/25/19
+
+module use /projects/b1092/modules
+module load toast
+conda activate /projects/b1092/software/toast-python
+srun -A b1094 -p ciera-std -t 1:00:00 --mem=50G -N 1 -n 28 --pty bash -l
+mpirun toast_mpi_map /projects/b1092/old_toast_things/runfiles/maps_2012/mickey/good_500_p10_2493151_run.xml --bin --diagntt --cov --gls --gls_maxiter 1 --gls_dump_iter -1 --rcond 0.01 --dist_chan 16 --out good_500_p10_2493151_run_test
+#waited a long time, gave up
+
+# to check available cores on each node:
+sinfo -N -p ciera-std -o %C
+# output (allocated, idle, other, total)
+CPUS(A/I/O/T)
+13/15/0/28
+22/6/0/28
+26/2/0/28
+28/0/0/28
+22/6/0/28
+28/0/0/28
+28/0/0/28
+25/3/0/28
+19/9/0/28
+
+#errors:
+  what():  Exception at line 330 of file ../../../experiments/blast/IO/toast_pointing_blast.cpp:  cannot read pointing at non-standard sample rate: 100.158 (expect 0, err: inf)
+# the variable rate_ is set to zero and remains zero
+#6/27/19
+#I edited the xml file again, I changed the flags in the pointing tag, and toast_info had no problems, so I wanted to try to run toast_mpi_map
+
+#requested a job with only 6 cores
+srun -A b1094 -p ciera-std -t 1:00:00 --mem=50G -N 1 -n 6 --pty bash -l
+#I get the following prompt:
+bash-4.2$
+#but it should be the regular one. Plus, I can't access the project space or the home space
+
