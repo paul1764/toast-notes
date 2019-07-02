@@ -220,7 +220,7 @@ Module files loaded by Pascal:
     copied mickey_good_500_p10_good_run.xml on hen to mickey_hen_500_run.xml
     running toast_info: had to use sed to insert alpha column again, set alpha=1.0 (otherwise toast_detector_blast.cpp:85 gives error)
     after fixing, got error: dirfile_io_blast.cpp:201 failed to get dirfile start time, but getdata is loaded from pascal/getdata/bin
-    copied good_500_p10_2493151.xml, had to fix paths and suffixes, toast_info runs! Need to try mapmaker
+    copied good_500_p10_2493151_run.xml, had to fix paths and suffixes, toast_info runs! Need to try mapmaker
     toast_mpi_map + old hen xml _ + naive → dat file, how to get a fits?
     next: gls instead of naive, if that works try new hen xml
     find interval in pyblast to see why we have so many interval tags in new xml file, only one in old xml
@@ -277,7 +277,7 @@ Module files loaded by Pascal:
 
     reinstalled toast in correct directory: toast_new
     overwrote old toast binaries though
-    running toast_info, couldn't find a boost library, so I made a link from the one it looked for (1.55) to the correct one (1.61) in our private boost install
+    #running toast_info, couldn't find a boost library, so I made a link from the one it looked for (1.55) to the correct one (1.61) in our private boost install
     copied an xml file to change alpha back to angle (since toast now looks for angle)
     new xml: mickey_good_500_new_toast.xml has all the scans except the bad one
     mickey_500_new_toast_gls_1_scan.xml: new, for scan tests. going to have one xml file for each scan, will have the scan number in the xml file name
