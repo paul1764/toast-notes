@@ -1218,3 +1218,29 @@ srun -A b1094 -p ciera-std -t 1:00:00 --mem=50G -N 1 -n 6 --pty bash -l
 bash-4.2$
 #but it should be the regular one. Plus, I can't access the project space or the home space
 
+
+#7/2/2019
+#per Alper's notes, to use pyblast:
+
+module use /projects/b1092/modules
+module load fftw/3.3.8 cfitsio/3.45 getdata/0.9.3 wcslib/5.15 boost/1.61.0
+conda activate /projects/b1092/software/pyblast-env
+python
+>>> import blast.config
+>>> import blast.mapmaker
+
+#fix many paths in the pyblast library to point to /projects/b1092, rather than /data/etc
+#after this, must re-install python module
+cd /projects/b1092/pyblast
+python setup.py install #when using the pyblast-env environment
+
+#edited /projects/b1092/software/pyblast-env/lib/python2.7/site-packages/pytoast/blast/runblast.py lines 31 and 59
+#changed mp.coordinate_system to mp.map_coordinate system (because that's what was in toast_make_all_runs.py)
+python toast_make_all_runs.py
+
+#in an interactive job with 4 cores
+mpirun -np 4 toast_mpi_map /projects/b1092/runfiles_test/maps_2012/mickey/mickey_good_500_p10_good_C_run.xml --bin --diagntt --cov --gls --gls_maxiter 1 --gls_dump_iter -1 --rcond 0.01 --dist_chan 4 --out mickey_good_500_p10_good_C_run_test
+#converged on gls iter=0 after about 15 min
+toast_convert mickey_good_500_p10_good_C_run_test_binned.dat
+toast_convert mickey_good_500_p10_good_C_run_test_gls.dat
+
