@@ -1218,6 +1218,63 @@ srun -A b1094 -p ciera-std -t 1:00:00 --mem=50G -N 1 -n 6 --pty bash -l
 bash-4.2$
 #but it should be the regular one. Plus, I can't access the project space or the home space
 
+#06/28/19 -Alper
+#Importing blast.config and blast.mapmaker without an error so that "toast_make_all_runs.py" 
+#could run and create an xml file correctly. I did the installation on the compute node
+#by submitting an interactive job. After the installation is completed, I logged out from
+#the interactive sessions and loaded imported the blast.config and blast.mapmaker on
+#the login node.
+
+#On the compute node (interactive session)
+
+$ cp -r * /projects/b1092/lib64/python2.7/site-packages/pyblast /projects/b1092/pyblast
+
+#Edited /projects/b1092/pyblast/setup.py to comment out line 31 (starting with git_hash = ..)
+
+$ module use /projects/b1092/modules
+$ module load python/anaconda
+$ conda create -p /projects/b1092/software/pyblast-env python=2.7
+$ source activate /projects/b1092/software/pyblast-env
+$ cd /projects/b1092/pyblast
+$ python setup.py install (this installs within pyblast-env)
+$ cp -r /projects/b1092/software/toast/lib/python2.7/site-packages/pytoast /projects/b1092/software/pyblast-env/lib/python2.7/site-packages/
+
+$ cp /projects/b1092/software/getdata/0.9.3/lib/python2.7/site-packages/pygetdata.* /projects/b1092/software/pyblast-env/lib/python2.7/site-packages/
+$ conda install numpy
+$ conda install scipy
+$ source deactivate
+
+$ logout #end interactive session and go back to login onde
+
+$ module load fftw/3.3.8 cfitsio/3.45 getdata/0.9.3 wcslib/5.15 boost/1.61.0 python/anaconda
+$ python
+#>>> import blast.config
+#>>> import blast.mapmaker
+#>>> 
+
+#On the compute node this did not work as I encountered libboost_python-mt.so.1.53.0 error. 
+#See below for error
+#I think Paul was creating a symlink for this file.
+
+#(/projects/b1092/software/pyblast-env) [egc2975@qnode8101 boost]$ python
+#Python 2.7.16 |Anaconda, Inc.| (default, Mar 14 2019, 21:00:58)
+#[GCC 7.3.0] on linux2
+#Type "help", "copyright", "credits" or "license" for more information.
+#>>> import blast.config
+#>>> import blast.mapmaker
+#Traceback (most recent call last):
+#  File "<stdin>", line 1, in <module>
+#  File "/projects/b1092/software/pyblast-env/lib/python2.7/site-packages/blast/mapmaker/__init__.py", line 11, in <module>
+#    from params import *
+#  File "/projects/b1092/software/pyblast-env/lib/python2.7/site-packages/blast/mapmaker/params.py", line 15, in <module>
+#    from pytoast.blast.runblast import ToastRunConfig
+#  File "/projects/b1092/software/pyblast-env/lib/python2.7/site-packages/pytoast/blast/runblast.py", line 11, in <module>
+#    import pytoast.core as pt
+#  File "/projects/b1092/software/pyblast-env/lib/python2.7/site-packages/pytoast/core/__init__.py", line 2, in <module>
+#    from _pytoast import *
+#ImportError: libboost_python-mt.so.1.53.0: cannot open shared object file: No such file or directory
+
+#On the login node it does not give libboost_python-mt.so.1.53.0 error.
 
 #7/2/2019
 #per Alper's notes, to use pyblast:
@@ -1228,19 +1285,22 @@ conda activate /projects/b1092/software/pyblast-env
 python
 >>> import blast.config
 >>> import blast.mapmaker
+#those work!
 
-#fix many paths in the pyblast library to point to /projects/b1092, rather than /data/etc
+# in order to run toast_make_all_runs, we needed to fix many paths in the pyblast library to point to /projects/b1092, rather than /data/etc
 #after this, must re-install python module
 cd /projects/b1092/pyblast
 python setup.py install #when using the pyblast-env environment
 
 #edited /projects/b1092/software/pyblast-env/lib/python2.7/site-packages/pytoast/blast/runblast.py lines 31 and 59
 #changed mp.coordinate_system to mp.map_coordinate system (because that's what was in toast_make_all_runs.py)
+#also had to change some things in toast_make_all_runs.py because pyblast had some warnings, like that it can't do naive maps without running the mapmaker automatically
 python toast_make_all_runs.py
+#made xmls, in /projects/b1092/runfiles_test
 
 #in an interactive job with 4 cores
 mpirun -np 4 toast_mpi_map /projects/b1092/runfiles_test/maps_2012/mickey/mickey_good_500_p10_good_C_run.xml --bin --diagntt --cov --gls --gls_maxiter 1 --gls_dump_iter -1 --rcond 0.01 --dist_chan 4 --out mickey_good_500_p10_good_C_run_test
 #converged on gls iter=0 after about 15 min
+#to make fits files:
 toast_convert mickey_good_500_p10_good_C_run_test_binned.dat
 toast_convert mickey_good_500_p10_good_C_run_test_gls.dat
-
