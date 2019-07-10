@@ -1304,3 +1304,9 @@ mpirun -np 4 toast_mpi_map /projects/b1092/runfiles_test/maps_2012/mickey/mickey
 #to make fits files:
 toast_convert mickey_good_500_p10_good_C_run_test_binned.dat
 toast_convert mickey_good_500_p10_good_C_run_test_gls.dat
+
+#7/9/2019
+#figured out why it only did one iter, we set gls_maxiter 1!
+
+#found old map that only used one gls iteration, but was a less complete data set for mickey
+#also compared with a map made with more iterations (unsure how many though, but some of the ones we ran in 2016 used 27 or 29 iterations)
