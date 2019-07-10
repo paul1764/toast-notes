@@ -1310,3 +1310,29 @@ toast_convert mickey_good_500_p10_good_C_run_test_gls.dat
 
 #found old map that only used one gls iteration, but was a less complete data set for mickey
 #also compared with a map made with more iterations (unsure how many though, but some of the ones we ran in 2016 used 27 or 29 iterations)
+
+#7/10/2019
+#not sure we can use the python environment for running in a batch job, the environment isn't set up correctly on the compute nodes
+#maybe it is okay though, as long as toast uses the right libraries
+#just loading modules and not using the conda environment on a login node seems to result in the correct linking, so probably this is okay
+#running with the following submission script for a 16 core job:
+"
+#!/bin/bash
+#SBATCH -A b1094
+#SBATCH -p ciera-std
+#SBATCH -t 2:00:00
+#SBATCH --mem=50G
+#SBATCH -N 1
+#SBATCH -n 16
+#SBATCH -J toast_mickey_tests_1
+#SBATCH --output=/projects/b1092/job_outputs/"%x.o%j"
+#SBATCH --error=/projects/b1092/job_outputs/"%x.e%j"
+
+module purge
+module use /projects/b1092/modules
+#loads all dependent modules as well
+module load toast
+
+mpirun -np 16 toast_mpi_map /projects/b1092/runfiles/maps_2012/mickey/mickey_good_500_p10_good_C_run.xml --bin --diagntt --cov --gls --gls_maxiter 60 --gls_dump_iter -1 --rcond 0.01 --dist_chan 16 --out /projects/b1092/toast_outputs/mickey_good_500_16cores
+"
+
