@@ -1336,3 +1336,72 @@ module load toast
 mpirun -np 16 toast_mpi_map /projects/b1092/runfiles/maps_2012/mickey/mickey_good_500_p10_good_C_run.xml --bin --diagntt --cov --gls --gls_maxiter 60 --gls_dump_iter -1 --rcond 0.01 --dist_chan 16 --out /projects/b1092/toast_outputs/mickey_good_500_16cores
 "
 
+#7/30/2019
+#dist_chan option can be up to the number of cores in one node, but not more than 16
+
+8/6/2019
+- quest can only request 2000 cores (of 20000)
+- use conda for packages (not just python) 
+- use most recent software wherever possible
+
+
+8/16/2019
+#trying to build a version of kst2 that can read hdf5 files
+#on my local machine, just to try it
+conda create --name kst2-hdf5
+conda activate kst2-hdf5
+conda install -c conda-forge curl
+conda install -c conda-forge hdf5
+cd ~/software
+git clone git@github.com:Unidata/netcdf-c.git
+cd netcdf-c
+git checkout v4.7.0
+LD_LIBRARY_PATH=/home/paul/anaconda3/envs/kst2-hdf5/lib
+ENV=/home/paul/anaconda3/envs/kst2-hdf5
+CPPFLAGS='-I${ENV}/include' LDFLAGS='-L${ENV}/lib' ./configure --prefix=${ENV}
+#output ended with: 
+#checking for curl_easy_setopt in -lcurl... no
+#checking for library containing curl_easy_setopt... no
+#configure: error: curl required for remote access. Install curl or build with --disable-dap.
+CPPFLAGS='-I${ENV}/include -I${ENV}/include/curl' LDFLAGS='-L${ENV}/lib' ./configure --prefix=${ENV}
+#same error
+CPPFLAGS='-I${ENV}/include -I${ENV}/include/curl' LDFLAGS='-L${ENV}/lib' ./configure --prefix=${ENV} --disable-dap
+#output ended with:
+#checking whether byte range support is enabled... no
+#configure: error: curl required for byte range support. Install curl or build without --enable-byterange
+#so I really need a better curl
+conda remove curl
+#download curl source code
+cd ~/software/curl-7.65.3
+./configure --prefix=/home/paul/anaconda3/kst2-hdf5 --enable-ldap --enable-ldaps
+make
+make test
+
+cd ~/software/netcdf-c
+CPPFLAGS='-I${ENV}/include' LDFLAGS='-L${ENV}/lib -L/usr/lib/x86_64-linux-gnu' ./configure --prefix=${ENV}
+#same error, something wrong with curl, try conda again without specifying channel
+conda install curl
+CPPFLAGS='-I${ENV}/include -I${ENV}/include/curl' LDFLAGS='-L${ENV}/lib' ./configure --prefix=${ENV}
+#same error
+CPPFLAGS='-I${ENV}/include -I${ENV}/include/curl' LDFLAGS='-L${ENV}/lib' ./configure --prefix=${ENV} --disable-dap
+#byterange error
+CPPFLAGS='-I${ENV}/include -I${ENV}/include/curl' LDFLAGS='-L${ENV}/lib' ./configure --prefix=${ENV} --disable-dap --disable-byterange
+#byterange error still there...
+#try cmake, maybe a problem with configure in v4.7.0 according to an online source
+mkdir build
+cd build
+cmake ..
+#output ends:
+#-- Could NOT find CURL (missing: CURL_LIBRARY CURL_INCLUDE_DIR) 
+#CMake Error at CMakeLists.txt:783 (MESSAGE):
+#  DAP Support specified, CURL libraries are not found.
+
+CURL_LIBRARY=$ENV/lib/libcurl.so
+CURL_INCLUDE_DIR=$ENV/include/curl
+cmake ..
+#still same error
+ccmake ..
+#change prefix to be conda environment
+make
+make install
+#not sure if this really worked
