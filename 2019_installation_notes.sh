@@ -1299,7 +1299,7 @@ python toast_make_all_runs.py
 #made xmls, in /projects/b1092/runfiles_test
 
 #in an interactive job with 4 cores
-mpirun -np 4 toast_mpi_map /projects/b1092/runfiles_test/maps_2012/mickey/mickey_good_500_p10_good_C_run.xml --bin --diagntt --cov --gls --gls_maxiter 1 --gls_dump_iter -1 --rcond 0.01 --dist_chan 4 --out mickey_good_500_p10_good_C_run_test
+mpirun -np 4 toast_mpi_map /projects/b1092/runfiles_test/maps_2013/mickey/mickey_good_500_p10_good_C_run.xml --bin --diagntt --cov --gls --gls_maxiter 1 --gls_dump_iter -1 --rcond 0.01 --dist_chan 4 --out mickey_good_500_p10_good_C_run_test
 #converged on gls iter=0 after about 15 min
 #to make fits files:
 toast_convert mickey_good_500_p10_good_C_run_test_binned.dat
@@ -1405,3 +1405,200 @@ ccmake ..
 make
 make install
 #not sure if this really worked
+
+8/19/19
+conda remove curl
+#get ldap library, there is no ldaps library
+conda install -c conda-forge ldap
+conda install -c conda-forge curl
+
+cd ~/netcdf-c
+CPPFLAGS='-I${ENV}/include -I${ENV}/include/curl' LDFLAGS='-L${ENV}/lib' ./configure --prefix=${ENV}
+#still failed to find curl, suggested --disable-dap
+
+cd ~/software/curl-7.65.3
+./configure --prefix=/home/paul/anaconda3/kst2-hdf5 --enable-ldap --enable-ldaps
+make
+make test
+
+#download ldap 2.4.48 http://www.openldap.org/software/download/
+cd ~/software/openldap-2.4.48
+./configure --prefix=${ENV}
+#output:
+#checking db.h usability... no
+#checking db.h presence... no
+#checking for db.h... no
+#configure: error: BDB/HDB: BerkeleyDB not available
+
+
+#TOAST
+#Erin tried to run toast on Vela C data, it failed on comparing pointing rate.
+cd /projects/b1092/runfiles/maps_2012/axehead
+cp axehead_good_500_p10_good_G_run.xml axehead_500_test.xml
+#remove all intervals from the copy except the first one
+#remaking xml with vela c in C (celestial?) coordinates appears to have worked
+
+8/20/19
+#trying to get curl to work still, need berkeley db for openldap
+#berkeleydb is available in conda
+conda install -c conda-forge bsddb3
+./configure --prefix=${ENV}
+#still couldn't find db.h
+CFLAGS='-I${ENV}/include' CPPFLAGS='-I${ENV}/include' LDFLAGS='-L${ENV}/lib' ./configure --prefix=${ENV}
+#and again, even though db.h exists at:
+/home/paul/anaconda3/envs/kst2-hdf5/include/db.h
+./configure --prefix=${ENV} CFLAGS='-I${ENV}/include' CPPFLAGS='-I${ENV}/include' LDFLAGS='-L${ENV}/lib' 
+#still no db.h
+cd ~/software
+rm -r openldap-2.4.48
+tar xzf ~/Downloads/openldap-2.4.48.tgz
+cd ~/software/openldap-2.4.48
+./configure --prefix=${ENV} CFLAGS='-I${ENV}/include' CPPFLAGS='-I${ENV}/include' LDFLAGS='-L${ENV}/lib' 
+#nope
+conda remove ldap #didn't realize I still had this ldap installed
+#in this removal, libdb was updated
+./configure --prefix=${ENV} CFLAGS='-I${ENV}/include' CPPFLAGS='-I${ENV}/include' LDFLAGS='-L${ENV}/lib' 
+#still can't find db.h, which is still in the same place
+./configure --prefix=${ENV} CFLAGS='-I${ENV}/include' CPPFLAGS='-I${ENV}/include' CXXFLAGS='-I${ENV}/include' LDFLAGS='-L${ENV}/lib' 
+#tried configure with --with-db=$ENV/include, --with-bdb=$ENV/include, etc
+#all of these options were not recognized
+./configure --prefix=${ENV} --enable-hdb=yes --enable-bdb=no CFLAGS='-I${ENV}/include' CPPFLAGS='-I${ENV}/include' CXXFLAGS='-I${ENV}/include' LDFLAGS='-L${ENV}/lib'
+#didn't find db.h, don't know why it still looks for it
+./configure --prefix=${ENV} --enable-hdb=no --enable-bdb=no CFLAGS='-I${ENV}/include' CPPFLAGS='-I${ENV}/include' CXXFLAGS='-I${ENV}/include' LDFLAGS='-L${ENV}/lib'
+#output says run `make depend` to build dependencies
+make depend
+make
+make install
+#seems to have worked!
+
+cd ~/software/curl-7.65.3
+./configure --prefix=/home/paul/anaconda3/kst2-hdf5 --enable-ldap --enable-ldaps
+#configure finishes, but not setup for ldap
+./configure --prefix=/home/paul/anaconda3/kst2-hdf5 --with-ldap-lib=/home/paul/anaconda3/envs/kst2-hdf5/lib/libldap.so
+./configure --prefix=/home/paul/anaconda3/kst2-hdf5 --with-ldap-lib=libldap.so
+#still not configured for ldap
+
+#trying system curl, it has ldap and ldaps according to:
+curl --version
+cd ~/software/curl-7.65.3
+./configure --prefix=/home/paul/anaconda3/kst2-hdf5 --with-ldap-lib=libldap_r-2.4.so.2
+#this library is from running:
+ldd /usr/bin/curl | grep ldap
+#and using the only library that curl is linked to that has ldap in the name
+#configure says this is not ldap.h, it doesn't have the right functions
+./configure --prefix=/home/paul/anaconda3/kst2-hdf5 CPPFLAGS='-I/home/paul/anaconda3/envs/kst2-hdf5/include'
+#found ldap.h but not ldap_ssl.h
+cd ~/software/openldap-2.4.48
+./configure --prefix=${ENV} --with-tls=openssl --enable-hdb=no --enable-bdb=no CFLAGS='-I${ENV}/include' CPPFLAGS='-I${ENV}/include' CXXFLAGS='-I${ENV}/include' LDFLAGS='-L${ENV}/lib'
+make depend
+make
+make install
+
+cd ~/software/curl-7.65.3
+./configure --prefix=/home/paul/anaconda3/kst2-hdf5 CPPFLAGS='-I/home/paul/anaconda3/envs/kst2-hdf5/include'
+./configure --prefix=/home/paul/anaconda3/kst2-hdf5 --enable-ldap CPPFLAGS='-I/home/paul/anaconda3/envs/kst2-hdf5/include'
+
+cd ~/software/openldap-2.4.48
+#already have ssl installed from conda
+make test
+#no tests failed
+./configure --prefix=${ENV} --with-tls=openssl --enable-hdb=no --enable-bdb=no CPPFLAGS='-I${ENV}/include' LDFLAGS='-L${ENV}/lib'
+make depend
+make
+make install
+#no ldap ssl header files
+conda install cyrus-sasl
+conda install -c heimdali itk-heimdali
+./configure --prefix=${ENV} --with-tls=openssl --enable-hdb=no --enable-bdb=no CPPFLAGS='-I${ENV}/include' LDFLAGS='-L${ENV}/lib'
+make depend
+make
+make install
+
+cd ~/software/curl-7.65.3
+./configure --prefix=/home/paul/anaconda3/kst2-hdf5 --enable-ldap CPPFLAGS='-I/home/paul/anaconda3/envs/kst2-hdf5/include' LD_FLAGS='-L${ENV}/lib'
+#fails
+cd ~/software/openldap-2.4.48
+./configure --prefix=${ENV} --with-tls=openssl --enable-hdb=no --enable-bdb=no CPPFLAGS='-I${ENV}/include' LDFLAGS='-L${ENV}/lib' PKG_CONFIG_PATH=/home/paul/anaconda3/envs/kst2-hdf5/lib/pkgconfig
+
+cd ~/software/openssl-1.1.1c
+./config --prefix=${ENV}
+make
+make test
+make install
+#appears it all worked
+
+cd ~/software/krb5-1.17
+cd src
+./configure --prefix=${ENV}
+make
+make check
+make install
+#failed
+make
+#need yacc
+sudo apt install bison
+make
+make install
+
+cd ~/software/cyrus-sasl
+./autogen --prefix=${ENV}
+make
+make install
+
+cd ~/software/openldap-2.4.48
+./configure --prefix=${ENV} --with-tls=openssl --enable-hdb=no --enable-bdb=no CPPFLAGS='-I${ENV}/include' LDFLAGS='-L${ENV}/lib' PKG_CONFIG_PATH=/home/paul/anaconda3/envs/kst2-hdf5/lib/pkgconfig
+make depend
+make
+make install
+
+cd ~/software/curl-7.65.3
+./configure --prefix=/home/paul/anaconda3/kst2-hdf5 --enable-ldap --enable-ldaps CPPFLAGS='-I/home/paul/anaconda3/envs/kst2-hdf5/include' LD_FLAGS='-L${ENV}/lib'
+#no ldap!
+
+8/21/19
+cd ~/software/netcdf-c
+git checkout v4.6.3
+CPPFLAGS='-I${ENV}/include -I${ENV}/include/curl' LDFLAGS='-L${ENV}/lib' ./configure --prefix=${ENV} --disable-dap --disable-byterange
+#byterange option not recognized
+CPPFLAGS='-I${ENV}/include -I${ENV}/include/curl' LDFLAGS='-L${ENV}/lib' ./configure --prefix=${ENV} --disable-dap
+#checking for library containing H5Fflush... no
+#configure: error: Can't find or link to the hdf5 library. Use --disable-netcdf-4, or see config.log for errors.
+ln -s /home/paul/anaconda3/envs/kst2-hdf5/lib/libhdf5.so.103 /home/paul/anaconda3/envs/kst2-hdf5/lib/libhdf5.so
+CPPFLAGS='-I${ENV}/include -I${ENV}/include' LDFLAGS='-L${ENV}/lib' ./configure --prefix=${ENV} --disable-dap
+
+rm -r build
+mkdir build
+cd build
+conda install cmake
+conda install h5py
+cmake .. -DCMAKE_INSTALL_PREFIX=/home/paul/anaconda3/envs/kst2-hdf5
+make
+make install
+
+cd ~/software
+git clone https://github.com/Kst-plot/kst.git
+cd ~/software/kst
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=/home/paul/anaconda3/envs/kst2-hdf5
+#no qt
+#didn't find netcdf, also found the system getdata
+
+conda install qt
+#to make cmake work with qt5
+CMAKE_PREFIX_PATH=/home/paul/anaconda3/envs/kst2-hdf5
+
+cd ~/software/getdata-0.10.0
+./configure --disable-idl --disable-matlab --disable-perl --disable-php --disable-zzslim --prefix=${ENV}
+make
+make install
+make check
+#only big_test.py failed, everything else worked
+
+cd ~/software/kst/build
+export NETCDF_DIR=/home/paul/anaconda3/envs/kst2-hdf5
+cmake .. -Dkst_install_prefix=/home/paul/anaconda3/envs/kst2-hdf5 -Dkst_qt5=ON
+#didn't find netcdf
+export NETCDF_DIR=/home/paul/anaconda3/envs/kst2-hdf5/lib
+cmake .. -Dkst_install_prefix=/home/paul/anaconda3/envs/kst2-hdf5 -Dkst_qt5=ON
+#didn't find netcdf
