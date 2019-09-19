@@ -1602,3 +1602,9 @@ cmake .. -Dkst_install_prefix=/home/paul/anaconda3/envs/kst2-hdf5 -Dkst_qt5=ON
 export NETCDF_DIR=/home/paul/anaconda3/envs/kst2-hdf5/lib
 cmake .. -Dkst_install_prefix=/home/paul/anaconda3/envs/kst2-hdf5 -Dkst_qt5=ON
 #didn't find netcdf
+
+
+#9/19/19
+Couple weeks ago found that we have to use mpi and openmp with old toast
+mpi processes = number of nodes
+openmp threads (per process) = cores/node
